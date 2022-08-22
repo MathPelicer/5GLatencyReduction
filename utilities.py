@@ -1,13 +1,19 @@
 import xml.etree.ElementTree as ET
 
-class grid(object):
-    size_x = 0
-    size_y = 0
+class Grid(object):
+    size_x = 10
+    size_y = 10
     access_points_list = []
     devices_list = []
 
     def __init__(self):
         pass
+
+    def IsInsideGrid(self, pos_x, pos_y):
+        if int(pos_x) <= self.size_x and int(pos_y) <= self.size_y and int(pos_x) >= 0 and int(pos_y) >= 0:
+            return True
+        else:
+            return False
 
 # basic access point to be extended
 class AccessPoint(object):
@@ -17,6 +23,14 @@ class AccessPoint(object):
     pos_x = 0
     pos_y = 0
 
+    def __init__(self):
+        pass
+
+class CloudAccessPoint(AccessPoint):
+    def __init__(self):
+        pass
+
+class FogAccessPoint(AccessPoint):
     def __init__(self):
         pass
 
