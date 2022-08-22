@@ -1,4 +1,7 @@
 import xml.etree.ElementTree as ET
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
 
 class Grid(object):
     size_x = 10
@@ -56,3 +59,10 @@ def xmlParser(xmlFile):
 	for child in root:
 		parameters[child.tag] = child
 	return parameters
+
+def createNormalDistribution():
+    data = np.arange(1, 24, 0.001)
+    pdf = norm.pdf(data, loc=12, scale=4)
+    #pdf = 23000
+    plt.plot(data, pdf, color='black')
+    plt.show()

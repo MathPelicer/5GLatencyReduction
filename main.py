@@ -1,6 +1,7 @@
 import utilities
 
 networkData = utilities.xmlParser('network.xml')
+utilities.createNormalDistribution()
 print(networkData)
 
 devicesList = []
