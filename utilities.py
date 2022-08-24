@@ -49,3 +49,6 @@ def createNormalDistribution():
     #pdf = 23000
     plt.plot(data, pdf, color='black')
     plt.show()
+
+def createWorkload(size):
+    pass
