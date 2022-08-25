@@ -2,6 +2,8 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+from uuid import uuid4
+from random import randint
 
 # basic access point to be extended
 class ProcessingNode(object):
@@ -24,11 +26,13 @@ class FogNode(ProcessingNode):
 
 class Devices():
     device_id = 0
-    classOfService = "standard/priority"
-    latency = []
+    # fog latency = 96
+    # cloud latency = 196
+    latency = [98, 196]
     
-    def __init__(self):
-        pass
+    def __init__(self, classOfService):
+        self.classOfService = classOfService # priority/standard
+        self.device_id = uuid4()
 
 def xmlParser(xmlFile):
 	#keep the configuration parameters
@@ -51,4 +55,15 @@ def createNormalDistribution():
     plt.show()
 
 def createWorkload(size):
-    pass
+    workload = []
+
+    for device in range(size):
+        priority = randint(0, 1)
+        if priority == 0:
+            new_device = Devices("standard")
+        else:
+            new_device = Devices("priority")
+
+        workload.append(new_device)
+
+    return workload
