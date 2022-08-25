@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
@@ -26,26 +26,13 @@ class FogNode(ProcessingNode):
 
 class Devices():
     device_id = 0
-    # fog latency = 96
+    # fog latency = 98
     # cloud latency = 196
     latency = [98, 196]
     
-    def __init__(self, classOfService):
-        self.classOfService = classOfService # priority/standard
-        self.device_id = uuid4()
-
-def xmlParser(xmlFile):
-	#keep the configuration parameters
-	parameters = {}
-	#construct the XML tree
-	tree = ET.parse(xmlFile)
-	#get the root
-	root = tree.getroot()
-	#return root
-	##iterate over the nodes and  store each one into the parameters dictionaire
-	for child in root:
-		parameters[child.tag] = child
-	return parameters
+    def __init__(self, class_of_service):
+        self.class_of_service = class_of_service # priority/standard
+        self.device_id = str(uuid4())
 
 def createNormalDistribution():
     data = np.arange(1, 24, 0.001)
@@ -63,7 +50,7 @@ def createWorkload(size):
             new_device = Devices("standard")
         else:
             new_device = Devices("priority")
-
         workload.append(new_device)
 
-    return workload
+    json_workload = json.dumps([dev.__dict__ for dev in workload])
+    return json_workload
