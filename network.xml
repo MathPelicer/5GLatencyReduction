@@ -2,12 +2,12 @@
 
 <config>
     <UserDevices>
-        <Device pos_x="1" pos_y="1" application_type = "priority"/>
-        <Device pos_x="2" pos_y="2" application_type = "standard"/>
-        <Device pos_x="3" pos_y="3" application_type = "priority"/>
-        <Device pos_x="4" pos_y="4" application_type = "standard"/>
-        <Device pos_x="5" pos_y="5" application_type = "priority"/>
-        <Device pos_x="6" pos_y="6" application_type = "standard"/>
-        <Device pos_x="16" pos_y="16" application_type = "standard"/>
+        <Device application_type = "priority"/>
+        <Device application_type = "standard"/>
+        <Device application_type = "priority"/>
+        <Device application_type = "standard"/>
+        <Device application_type = "priority"/>
+        <Device application_type = "standard"/>
+        <Device application_type = "standard"/>
     </UserDevices>
 </config>

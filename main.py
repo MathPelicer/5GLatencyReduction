@@ -1,12 +1,15 @@
 import utilities
 
-networkData = utilities.xmlParser('network.xml')
-utilities.createNormalDistribution()
-print(networkData)
+workload = utilities.createWorkload(10)
+
+#utilities.createNormalDistribution()
+
 
 devicesList = []
 
-for device in networkData["UserDevices"]:
-    print(device)
-    print(device.attrib.values())
+for device in workload:
+    print("id: " + str(device.device_id) + " class of service: " + device.class_of_service)
+
+#for device in networkData["UserDevices"]:
+#    print(device.attrib.values())
 
