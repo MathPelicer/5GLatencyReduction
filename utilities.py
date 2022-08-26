@@ -33,13 +33,16 @@ class Devices():
     def __init__(self, class_of_service):
         self.class_of_service = class_of_service # priority/standard
         self.device_id = str(uuid4())
+        self.latency = self.latency
 
 def createNormalDistribution():
-    data = np.arange(1, 24, 0.001)
+    data = np.arange(0, 24, 0.001)
     pdf = norm.pdf(data, loc=12, scale=4)
     #pdf = 23000
     plt.plot(data, pdf, color='black')
     plt.show()
+
+    return pdf
 
 def createWorkload(size):
     workload = []
