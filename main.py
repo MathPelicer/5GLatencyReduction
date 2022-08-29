@@ -1,12 +1,16 @@
 import utilities
+import json
 
-networkData = utilities.xmlParser('network.xml')
-utilities.createNormalDistribution()
-print(networkData)
 
-devicesList = []
+workload = json.loads(utilities.createWorkload(1, 2))
 
-for device in networkData["UserDevices"]:
+distribution = utilities.createNormalDistribution()
+# for i in range(len(distribution)):
+# if i % 1000 == 0:
+#print(str(i) + ": " + str(distribution[i] * 1000))
+print(workload)
+
+for device in workload:
     print(device)
-    print(device.attrib.values())
-
+    # print("id: " + str(device["device_id"]) +
+    #      " class of service: " + device["class_of_service"])
