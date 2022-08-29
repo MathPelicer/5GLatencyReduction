@@ -44,6 +44,7 @@ class Devices():
         self.class_of_service = class_of_service  # priority/standard
         self.device_id = str(uuid4())
         self.latency = self.latency
+        self.request_size = randint(50, 1000)
 
 
 def createNormalDistribution():
