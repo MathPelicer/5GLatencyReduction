@@ -38,14 +38,28 @@ class Devices():
     device_id = 0
     # fog latency = 98
     # cloud latency = 196
-    latency = [98, 196]
 
     def __init__(self, class_of_service, region):
         self.class_of_service = class_of_service  # priority/standard
         self.device_id = str(uuid4())
-        self.latency = self.latency
+        self.latency = []
         self.request_size = randint(50, 1000)
         self.region = region
+
+    def getListLatencyToAllFogNodes(self, number_fog_nodes, device_region):
+        latency_list = []
+        FOG_LATENCY = 98
+        CLOUD_LATENCY = 196
+
+        for region_fog_node in range(1, number_fog_nodes + 1):
+            distance_to_fog_node = device_region - (region_fog_node - 0.5)
+            normalized_to_latency = FOG_LATENCY * distance_to_fog_node
+
+            latency_list.append(abs(normalized_to_latency))
+
+        latency_list.append(CLOUD_LATENCY)
+
+        return latency_list
 
 
 def createNormalDistribution():
@@ -76,10 +90,14 @@ def createWorkload(number_cloud_nodes, number_fog_nodes):
         for device in range(size):
             region = uniform(0, region_range)
             priority = randint(0, 1)
+
             if priority == 0:
                 new_device = Devices("standard", region)
             else:
                 new_device = Devices("priority", region)
+
+            new_device.latency = new_device.getListLatencyToAllFogNodes(
+                region_range, region)
 
             if i in workload:
                 workload[i].append(new_device.__dict__)
