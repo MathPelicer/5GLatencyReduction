@@ -2,7 +2,7 @@ import utilities
 import json
 
 
-workload = json.loads(utilities.createWorkload(1, 2))
+workload = json.loads(utilities.createWorkload(1, 3))
 
 distribution = utilities.createNormalDistribution()
 # for i in range(len(distribution)):

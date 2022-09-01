@@ -21,14 +21,14 @@ class ProcessingNode(object):
 
 
 class CloudNode(ProcessingNode):
-    device_capacity = 100
+    device_capacity = 1000
 
     def __init__(self):
         pass
 
 
 class FogNode(ProcessingNode):
-    device_capacity = 20
+    device_capacity = 200
 
     def __init__(self):
         pass
@@ -84,8 +84,8 @@ def createWorkload(number_cloud_nodes, number_fog_nodes):
     workload = {}
 
     for i in range(len(distribution)):
-        size = round(((number_cloud_nodes * 100) +
-                      (number_fog_nodes * 20)) * distribution[i])
+        size = round(((number_cloud_nodes * 1000) +
+                      (number_fog_nodes * 200)) * distribution[i])
 
         for device in range(size):
             region = uniform(0, region_range)
