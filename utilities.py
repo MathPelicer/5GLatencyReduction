@@ -14,7 +14,6 @@ class ProcessingNode(object):
     available_bandwidth = 0
     used_processing = 0
     available_processing = 0
-    connected_devices = []
 
     def __init__(self):
         pass
@@ -22,16 +21,16 @@ class ProcessingNode(object):
 
 class CloudNode(ProcessingNode):
     device_capacity = 1000
-
+    
     def __init__(self):
-        pass
+        self.connected_devices = []
 
 
 class FogNode(ProcessingNode):
     device_capacity = 200
-
+    
     def __init__(self):
-        pass
+        self.connected_devices = []
 
 
 class Devices():
