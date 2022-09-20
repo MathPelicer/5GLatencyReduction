@@ -21,16 +21,18 @@ class ProcessingNode(object):
 
 class CloudNode(ProcessingNode):
     device_capacity = 1000
-    
+
     def __init__(self):
         self.connected_devices = []
+        self.queue_devices = []
 
 
 class FogNode(ProcessingNode):
     device_capacity = 200
-    
+
     def __init__(self):
         self.connected_devices = []
+        self.queue_devices = []
 
 
 class Devices():
@@ -79,13 +81,13 @@ def createNormalDistribution():
 def instantiate_processing_nodes(number_cloud_nodes, number_fog_nodes):
     processing_nodes = []
 
-    for cloud_nodes in range(number_cloud_nodes):
-        new_cloud = CloudNode()
-        processing_nodes.append(new_cloud)
-
     for fog_nodes in range(number_fog_nodes):
         new_fog = FogNode()
         processing_nodes.append(new_fog)
+
+    for cloud_nodes in range(number_cloud_nodes):
+        new_cloud = CloudNode()
+        processing_nodes.append(new_cloud)
 
     return processing_nodes
 
