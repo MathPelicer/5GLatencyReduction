@@ -21,16 +21,18 @@ class ProcessingNode(object):
 
 class CloudNode(ProcessingNode):
     device_capacity = 1000
-    
+
     def __init__(self):
         self.connected_devices = []
+        self.queue_devices = []
 
 
 class FogNode(ProcessingNode):
     device_capacity = 200
-    
+
     def __init__(self):
         self.connected_devices = []
+        self.queue_devices = []
 
 
 class Devices():
