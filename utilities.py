@@ -125,3 +125,44 @@ def createWorkload(number_cloud_nodes, number_fog_nodes):
     json_workload = json.dump(workload, out_file, indent=2)
     out_file.close()
     return json_workload
+
+
+def createWorkload2(number_cloud_nodes, number_fog_nodes):
+    distribution = createNormalDistribution()
+    region_range = number_fog_nodes
+
+    workload = {}
+
+    for i in range(len(distribution)):
+        size = round(((number_cloud_nodes * 1000) +
+                      (number_fog_nodes * 200)) * distribution[i])
+
+        # fog nodes have 37.5% of the capacity of the network
+        # cloud node have 62.5% of the capacity
+        #########################################################################
+        # TODO:
+        # Make this function generate the workload following this proportion
+        #######################################################################
+        for device in range(size):
+            region = uniform(0, region_range)
+            priority = randint(0, 1)
+
+            if priority == 0:
+                new_device = Devices("standard", region)
+            else:
+                new_device = Devices("priority", region)
+
+            new_device.latency = new_device.getListLatencyToAllFogNodes(
+                region_range, region)
+
+            if i in workload:
+                workload[i].append(new_device.__dict__)
+            else:
+                workload[i] = []
+                workload[i].append(new_device.__dict__)
+
+    print(workload)
+    out_file = open("workload.json",  "w")
+    json_workload = json.dump(workload, out_file, indent=2)
+    out_file.close()
+    return json_workload
