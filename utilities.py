@@ -137,12 +137,6 @@ def createWorkload2(number_cloud_nodes, number_fog_nodes):
         size = round(((number_cloud_nodes * 1000) +
                       (number_fog_nodes * 200)) * distribution[i])
 
-        # fog nodes have 37.5% of the capacity of the network
-        # cloud node have 62.5% of the capacity
-        #########################################################################
-        # TODO:
-        # Make this function generate the workload following this proportion
-        #######################################################################
         for device in range(size):
             region = uniform(0, region_range)
 
