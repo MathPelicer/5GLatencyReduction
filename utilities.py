@@ -145,9 +145,8 @@ def createWorkload2(number_cloud_nodes, number_fog_nodes):
         #######################################################################
         for device in range(size):
             region = uniform(0, region_range)
-            priority = randint(0, 1)
 
-            if priority == 0:
+            if device % 2 == 0:
                 new_device = Devices("standard", region)
             else:
                 new_device = Devices("priority", region)
@@ -162,7 +161,7 @@ def createWorkload2(number_cloud_nodes, number_fog_nodes):
                 workload[i].append(new_device.__dict__)
 
     print(workload)
-    out_file = open("workload.json",  "w")
+    out_file = open("workload2.json",  "w")
     json_workload = json.dump(workload, out_file, indent=2)
     out_file.close()
     return json_workload
