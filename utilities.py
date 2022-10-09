@@ -137,6 +137,9 @@ def createWorkload2(number_cloud_nodes, number_fog_nodes):
         size = round(((number_cloud_nodes * 1000) +
                       (number_fog_nodes * 200)) * distribution[i])
 
+        if size % 2 != 0:
+            size += 1
+
         for device in range(size):
             region = uniform(0, region_range)
 
