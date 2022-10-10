@@ -7,8 +7,29 @@ from sklearn.preprocessing import StandardScaler
 
 import matplotlib.pyplot as plt
 
+import random
 
-def main_DBSCAN():
+def generate_points(amount=100, seed=''):
+    
+    if seed != '':
+        random.seed(seed)
+    else:
+        random.seed(5)
+
+    points = []
+
+    for i in range(amount):
+        point = []
+        x = random.uniform(-1,3)
+        y = random.uniform(-1,3)
+        point.append(round(x,3))
+        # point.append(round(y,3))
+        points.append(point)
+
+    return (points)
+
+
+def example_DBSCAN():
     print("Hello World DBSCAN")
     
     # X = np.array([[1, 0], [2, 0], [2, 0],
@@ -273,4 +294,17 @@ def main_DBSCAN():
     plt.title("Estimated number of clusters: %d" % n_clusters_)
     plt.show()
     
-main_DBSCAN()
+def test_DBSCAN():
+    points = generate_points()
+    
+    db = DBSCAN(eps=0.27, min_samples=10).fit(points)
+    
+    print("db.labels_:", db.labels_)
+    
+    n_clusters_ = len(set(db.labels_)) - (1 if -1 in db.labels_ else 0)
+    
+    print("Clusters:",n_clusters_)
+
+# example_DBSCAN()
+
+test_DBSCAN()
