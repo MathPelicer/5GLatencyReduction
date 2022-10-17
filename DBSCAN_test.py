@@ -4,30 +4,19 @@ from sklearn.cluster import DBSCAN
 from sklearn import metrics
 from sklearn.datasets import make_blobs
 from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
 
 import matplotlib.pyplot as plt
 
+import math
+
 import random
 
-def generate_points(amount=100, seed=''):
-    
-    if seed != '':
-        random.seed(seed)
-    else:
-        random.seed(5)
+from collections import Counter
 
-    points = []
+import json
 
-    for i in range(amount):
-        point = []
-        x = random.uniform(-1,3)
-        y = random.uniform(-1,3)
-        point.append(round(x,3))
-        # point.append(round(y,3))
-        points.append(point)
-
-    return (points)
-
+import pandas as pd
 
 def example_DBSCAN():
     print("Hello World DBSCAN")
@@ -294,17 +283,260 @@ def example_DBSCAN():
     plt.title("Estimated number of clusters: %d" % n_clusters_)
     plt.show()
     
+def read_workload():
+    list_of_devices = []
+    
+    f = open('workload.json')
+    data = json.load(f)
+
+    for i in data:
+        for t in data[i]:
+
+            device = []
+            device.append(i)
+            device.append(t['device_id'])
+            device.append(10 if t['class_of_service'] == 'standard' else 100)
+            for fog_latency in range(len(t['latency'])):
+                device.append(t['latency'][fog_latency])
+            device.append(t['request_size'])
+            device.append(t['region'])
+
+            list_of_devices.append(device)
+
+    devicesDf = pd.DataFrame(list_of_devices, columns=['Hour', 'Device_id', 'Class_of_service',
+                            'Fog_latency_1', 'Fog_latency_2', 'Fog_latency_3', 'Cloud_latency', 'Request_size', 'Regions'])
+    
+    df_by_hour = dict(tuple(devicesDf.groupby('Hour')))
+    # print(list(range(len(df_by_hour))))
+    
+    return devicesDf, df_by_hour
+
+def generate_points(amount=100, seed='',minValue=-1, maxValue=3):
+    
+    if seed != '':
+        random.seed(seed)
+    else:
+        random.seed(5)
+
+    points = []
+    priority = []
+
+    for i in range(amount):
+        point = []
+        x = random.uniform(minValue,maxValue)
+        y = random.uniform(minValue,maxValue)
+        point.append(round(x,3))
+        # point.append(round(y,3))
+        points.append(point)
+        
+        priority.append(random.randint(0,1))
+
+    return (points)
+
+def calculate_params(dataset,number_of_neighbors):
+    print("calculating params")
+    neighbors = NearestNeighbors(number_of_neighbors)
+    neighbors_fit = neighbors.fit(dataset)
+    distances, indices = neighbors_fit.kneighbors(dataset)
+    
+    distances = np.sort(distances, axis=0)
+    distances = distances[:,1]
+    plt.plot(distances)
+    plt.show()
+    
+def calculate_distribution(dataset):
+    distribution_dict = {}
+    
+    distribution_dict['data'] = dataset
+    
+    distribution_dict['data_mean'] = np.mean(dataset)
+    distribution_dict['data_sd'] = np.std(dataset)
+    
+    # distribution_dict['prob_density'] = (np.pi*distribution_dict['data_sd']) * np.exp(-0.5*((distribution_dict['data']-distribution_dict['data_mean'])/distribution_dict['data_sd'])**2)
+    
+    # print("Ploting probality density")
+    
+    # #Plotting the Results
+    # plt.plot(distribution_dict['data'], distribution_dict['prob_density'], color = 'red')
+    # plt.xlabel('Data points')
+    # plt.ylabel('Probability Density')
+    
+    # plt.show()
+    
+    distribution_dict['rounded_prob_density'] = []
+    
+    # for i in range(len(distribution_dict['prob_density'])):
+    #     rounded_value = round(distribution_dict['prob_density'][i][0], 1)
+    #     distribution_dict['rounded_prob_density'].append(rounded_value)
+        
+    for i in range(len(distribution_dict['data'])):
+        rounded_value = round(distribution_dict['data'][i][0], 1)
+        distribution_dict['rounded_prob_density'].append(rounded_value)
+        
+    distribution_dict['distribution'] = dict(Counter(distribution_dict['rounded_prob_density']))
+    
+    rounded_prob_density_keys = list(distribution_dict['distribution'].keys())
+    
+    distribution_dict['most_repetition'] = 0
+    
+    for key in rounded_prob_density_keys:
+        if(distribution_dict['distribution'][key] > distribution_dict['most_repetition']):
+            distribution_dict['most_repetition'] = distribution_dict['distribution'][key]
+    
+    return distribution_dict
+    
+def sort_array(arr):
+    n = len(arr)
+    # optimize code, so if the array is already sorted, it doesn't need
+    # to go through the entire process
+    swapped = False
+    # Traverse through all array elements
+    for i in range(n-1):
+        # range(n) also work but outer loop will
+        # repeat one time more than needed.
+        # Last i elements are already in place
+        for j in range(0, n-i-1):
+ 
+            # traverse the array from 0 to n-i-1
+            # Swap if the element found is greater
+            # than the next element
+            if arr[j] > arr[j + 1]:
+                swapped = True
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+         
+        if not swapped:
+            # if we haven't needed to make a single swap, we
+            # can just exit the main loop.
+            return
+
+def calculate_distance(point_A, point_B):
+    return math.sqrt(math.pow(point_B[0] - point_A[0], 2))
+
+def calculate_distances_between_points(dataset):
+    distance_between_all_points = []
+    
+    for fixed_point in dataset:
+        point_distances = []
+        for variable_point in dataset:
+            if(fixed_point == variable_point):
+                continue
+            point_distances.append(calculate_distance(fixed_point, variable_point))
+        distance_between_all_points.append(point_distances)
+            
+    smallest_n_distances = []
+            
+    distribution_dict = calculate_distribution(dataset)
+    
+    closest_n = distribution_dict['most_repetition']
+    
+    for point_distances in distance_between_all_points:
+        sort_array(point_distances)
+        closest_n_distances_list = []
+        for i in range(closest_n):
+            closest_n_distances_list.append(point_distances[i])
+        smallest_n_distances.append(closest_n_distances_list)
+    
+    average_points_distances = []
+    
+    for closest_n_distances_list in smallest_n_distances:
+        single_point_distance_sum = 0
+        for point_distance in closest_n_distances_list:
+            single_point_distance_sum += point_distance
+        average_distance = single_point_distance_sum / closest_n
+        average_points_distances.append(average_distance)
+        
+    all_points_distance_sum = 0
+        
+    for i in range(len(average_points_distances)):
+        all_points_distance_sum += average_points_distances[i]
+        
+    all_points_average_distance = all_points_distance_sum / len(average_points_distances)
+    
+    return math.fabs(all_points_average_distance)
+    
+def calculate_clusters_centroid(dataset, dataset_labels, n_clusters):
+    clusters_dict = {}
+    
+    # Builds a dictionary for each cluster with the points that belong to it and the amount of points
+    for cluster in range(n_clusters):
+        clusters_dict[cluster] = {}
+        clusters_dict[cluster]['points'] = []
+        clusters_dict[cluster]['n_points'] = 0
+        for i in range(len(dataset_labels)):
+            if(dataset_labels[i] == cluster):
+                clusters_dict[cluster]['points'].append(dataset[i])
+                clusters_dict[cluster]['n_points'] += 1
+    
+    clusters_centroids = []
+    
+    # Calculate the Centroids of wach cluster
+    for cluster in range(n_clusters):
+        centroid_point = []
+        clusters_dict[cluster]['points_sum'] = 0
+        for i in range(clusters_dict[cluster]['n_points']):
+            clusters_dict[cluster]['points_sum'] += clusters_dict[cluster]['points'][i][0]
+        centroid_point.append(clusters_dict[cluster]['points_sum']/clusters_dict[cluster]['n_points'])
+        clusters_centroids.append(centroid_point)
+            
+    return clusters_centroids
+
 def test_DBSCAN():
     points = generate_points()
     
-    db = DBSCAN(eps=0.27, min_samples=10).fit(points)
+    sample_dimensionality = 2
     
-    print("db.labels_:", db.labels_)
+    average_point_distance = calculate_distances_between_points(points)
     
-    n_clusters_ = len(set(db.labels_)) - (1 if -1 in db.labels_ else 0)
+    default_db = DBSCAN(eps=0.044, min_samples=sample_dimensionality).fit(points)
     
-    print("Clusters:",n_clusters_)
-
+    default_clusters_labels = default_db.labels_
+    
+    print("Labels (Default):", default_clusters_labels)
+    
+    default_n_clusters_ = len(set(default_clusters_labels)) - (1 if -1 in default_clusters_labels else 0)
+    
+    print("Clusters (Default):",default_n_clusters_)
+    
+    print("\n====================================================================\n")
+    
+    db_calculated_eps = DBSCAN(eps=average_point_distance, min_samples=sample_dimensionality).fit(points)
+    
+    calculated_eps_clusters_labels = db_calculated_eps.labels_
+    
+    print("Labels (Calculated eps):", calculated_eps_clusters_labels)
+    
+    calculated_eps_n_clusters_ = len(set(calculated_eps_clusters_labels)) - (1 if -1 in calculated_eps_clusters_labels else 0)
+    
+    print("Clusters (Calculated eps):",calculated_eps_n_clusters_)
+    
+    print("\n====================================================================\n")
+    
+    # clusters_labels_prdct = db_predicted
+    
+    # print("Labels Predicted:", clusters_labels_prdct)
+    
+    # n_clusters_prdct = len(set(clusters_labels_prdct)) - (1 if -1 in clusters_labels_prdct else 0)
+    
+    # print("Clusters Predicted:",n_clusters_prdct)
+    
+    # Joining clusters
+    
+    # clusters_centroids = calculate_clusters_centroid(points, clusters_labels, n_clusters_)
+    
+    # print("Cluster Centroids:", clusters_centroids)
+    
+    # print("N Centroids:", len(clusters_centroids))
+    
+    # db_centroids = DBSCAN(eps=0.163, min_samples=2).fit(clusters_centroids)
+    
+    # clusters_centroids_labels = db_centroids.labels_
+    
+    # print("Centroids Labels:", clusters_centroids_labels)
+    
+    # n_clusters_centroids_ = len(set(clusters_centroids_labels)) - (1 if -1 in clusters_centroids_labels else 0)
+    
+    # print("Centroids Clusters:",n_clusters_centroids_)
+    
 # example_DBSCAN()
 
 test_DBSCAN()

@@ -1,3 +1,1 @@
-ustering.labels_
-
-    clustering
+db_predicted
