@@ -311,12 +311,9 @@ def read_workload():
     
     return devicesDf, df_by_hour
 
-def generate_points(amount=100, seed='',minValue=-1, maxValue=3):
+def generate_points(amount=100, seed=5, minValue=-1, maxValue=3):
     
-    if seed != '':
-        random.seed(seed)
-    else:
-        random.seed(5)
+    random.seed(seed)
 
     points = []
     priority = []
@@ -413,6 +410,8 @@ def calculate_distance(point_A, point_B):
     return math.sqrt(math.pow(point_B[0] - point_A[0], 2))
 
 def calculate_distances_between_points(dataset):
+    print("### Calculating distance between all points")
+    
     distance_between_all_points = []
     
     for fixed_point in dataset:
@@ -422,7 +421,10 @@ def calculate_distances_between_points(dataset):
                 continue
             point_distances.append(calculate_distance(fixed_point, variable_point))
         distance_between_all_points.append(point_distances)
-            
+        
+    return distance_between_all_points
+
+def calculate_closest_points_average_distances(dataset, distance_between_all_points):
     smallest_n_distances = []
             
     distribution_dict = calculate_distribution(dataset)
@@ -480,12 +482,83 @@ def calculate_clusters_centroid(dataset, dataset_labels, n_clusters):
             
     return clusters_centroids
 
+def get_clusters_size(dataset):
+    dataset_clusters = []
+    
+    cluster_size = {}
+    
+    for i in range(len(dataset)):
+        if(dataset[i] not in dataset_clusters):
+            dataset_clusters.append(dataset[i])
+    
+    for cluster in dataset_clusters:
+        cluster_size[cluster] = 0
+        for i in range(len(dataset)):
+            if(dataset[i] == cluster):
+                cluster_size[cluster] += 1
+                
+    return cluster_size
+
+def set_score(dataset, dataset_clusters, all_points_distance):
+    for i in range(len(all_points_distance)):
+        all_points_distance[i].insert(i, 0.0)
+        
+    # Putting points and their indexes in a dictionary organized by clusters
+    
+    # Example dictionary structure
+    # cluster_dict = {
+    #     '1' : {
+    #         'size' : 10,
+    #         'points' : [
+    #             {
+    #              'point_coordinate' : 0.5,
+    #              'index' : 0
+    #              'distances' : [0.0, 0.3]
+    #             }
+    #         ]
+    #     }
+    # }
+    
+    clusters_dict = {}
+    
+    cluster_labels = np.unique(np.array(dataset_clusters))
+    
+    for label in cluster_labels:
+        labelled_cluster_dict = {}
+        cluster_points = []
+        for i in range(len(dataset_clusters)):
+            if(dataset_clusters[i] == label):
+                point_dict = {}
+                point_dict['point_coordinate'] = dataset[i]
+                point_dict['index'] = i
+                point_dict['distances'] = all_points_distance[i]
+                cluster_points.append(point_dict)
+        labelled_cluster_dict['points'] = cluster_points
+        labelled_cluster_dict['size'] = len(cluster_points)
+        clusters_dict[label] = labelled_cluster_dict
+        
+    
+    
+    print()
+
+def cluster_clusters(dataset, dataset_clusters, desired_cluster_number, all_points_distance=[]):
+    n_clusters = len(set(dataset_clusters)) - (1 if -1 in dataset_clusters else 0)
+    
+    if(all_points_distance == []):
+        all_points_distance = calculate_distances_between_points(dataset)
+        
+    set_score(dataset, dataset_clusters, all_points_distance)
+    
+    print()
+
 def test_DBSCAN():
     points = generate_points()
     
     sample_dimensionality = 2
     
-    average_point_distance = calculate_distances_between_points(points)
+    all_points_distance = calculate_distances_between_points(points)
+    
+    average_point_distance = calculate_closest_points_average_distances(points, all_points_distance)
     
     default_db = DBSCAN(eps=0.044, min_samples=sample_dimensionality).fit(points)
     
@@ -510,6 +583,8 @@ def test_DBSCAN():
     print("Clusters (Calculated eps):",calculated_eps_n_clusters_)
     
     print("\n====================================================================\n")
+    
+    cluster_clusters(points, calculated_eps_clusters_labels, 6, all_points_distance)
     
     # clusters_labels_prdct = db_predicted
     
