@@ -125,3 +125,40 @@ def createWorkload(number_cloud_nodes, number_fog_nodes):
     json_workload = json.dump(workload, out_file, indent=2)
     out_file.close()
     return json_workload
+
+
+def createWorkload2(number_cloud_nodes, number_fog_nodes):
+    distribution = createNormalDistribution()
+    region_range = number_fog_nodes
+
+    workload = {}
+
+    for i in range(len(distribution)):
+        size = round(((number_cloud_nodes * 1000) +
+                      (number_fog_nodes * 200)) * distribution[i])
+
+        if size % 2 != 0:
+            size += 1
+
+        for device in range(size):
+            region = uniform(0, region_range)
+
+            if device % 2 == 0:
+                new_device = Devices("standard", region)
+            else:
+                new_device = Devices("priority", region)
+
+            new_device.latency = new_device.getListLatencyToAllFogNodes(
+                region_range, region)
+
+            if i in workload:
+                workload[i].append(new_device.__dict__)
+            else:
+                workload[i] = []
+                workload[i].append(new_device.__dict__)
+
+    print(workload)
+    out_file = open("workload2.json",  "w")
+    json_workload = json.dump(workload, out_file, indent=2)
+    out_file.close()
+    return json_workload
