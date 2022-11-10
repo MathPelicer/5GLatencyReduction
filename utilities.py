@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 from uuid import uuid4
-from random import randint, uniform
+from random import randint, uniform, seed
 
 # basic access point to be extended
 
@@ -44,7 +44,6 @@ class Devices():
         self.class_of_service = class_of_service  # priority/standard
         self.device_id = str(uuid4())
         self.latency = []
-        self.request_size = randint(50, 1000)
         self.region = region
 
     def getListLatencyToAllFogNodes(self, number_fog_nodes, device_region):
@@ -130,6 +129,7 @@ def createWorkload(number_cloud_nodes, number_fog_nodes):
 def createWorkload2(number_cloud_nodes, number_fog_nodes):
     distribution = createNormalDistribution()
     region_range = number_fog_nodes
+    seed(10)
 
     workload = {}
 
