@@ -137,9 +137,10 @@ def createWorkload2(number_cloud_nodes, number_fog_nodes):
         size = round(((number_cloud_nodes * 1000) +
                       (number_fog_nodes * 200)) * distribution[i])
 
-        if size % 2 != 0:
+        while size % 2 != 0:
             size += 1
 
+        print(size)
         for device in range(size):
             region = uniform(0, region_range)
 
@@ -157,7 +158,6 @@ def createWorkload2(number_cloud_nodes, number_fog_nodes):
                 workload[i] = []
                 workload[i].append(new_device.__dict__)
 
-    print(workload)
     out_file = open("workload2.json",  "w")
     json_workload = json.dump(workload, out_file, indent=2)
     out_file.close()
